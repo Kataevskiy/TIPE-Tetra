@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as anim
 import random as rd
-import time
 
 RED = 2 #Les couleurs
 BLUE = 1
@@ -98,5 +97,22 @@ def animation(grille, duree):
     plt.show()
 
 # grille1 = lire("Data/5 voitures.png")
-grille = grille_aléatoire(50, 2000)
-animation(grille, 1000)
+# grille = grille_aléatoire(50, 2000)
+# animation(grille, 500)
+
+def analyse_1():
+    y = []
+    x = np.arange(100, 2100, 25)
+    for i in range(100, 2100, 25):
+        y.append(1000)
+        grille = grille_aléatoire(50, i)
+        for j in range(1, 1000):
+            nouvelle_grille = suivant(grille)
+            if np.array_equal(nouvelle_grille, grille):
+                y[-1] = j
+                break
+            grille = nouvelle_grille
+    plt.plot(x, y)
+    plt.show()
+
+analyse_1()
