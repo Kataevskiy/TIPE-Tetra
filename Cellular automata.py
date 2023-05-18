@@ -97,7 +97,7 @@ def animation(grille, duree):
     plt.show()
 
 # grille1 = lire("Data/5 voitures.png")
-# grille = grille_aléatoire(50, 2000)
+# grille = grille_aléatoire(100, 4000)
 # animation(grille, 500)
 
 def analyse_1():
@@ -115,4 +115,4 @@ def analyse_1():
     plt.plot(x, y)
     plt.show()
 
-analyse_1()
+# analyse_1()
