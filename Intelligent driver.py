@@ -1,5 +1,7 @@
 import pygame
 import math
+import random
+import matplotlib.pyplot as plt
 
 pygame.init()
 ecran = pygame.display.set_mode((1600, 800))
@@ -9,6 +11,7 @@ texture_rouge = pygame.image.load("Data/red car.png")
 texture_bleu = pygame.image.load("Data/blue car.png")
 texture_route = pygame.image.load("Data/green land.png")
 texture_carrefour = pygame.image.load("Data/crossroad.png")
+texture_vide = pygame.image.load("Data/empty road.png")
 
 class vecteur:
 
@@ -52,9 +55,10 @@ class voiture:
     voitures = []
     vitesse_finale = 200
     distance_minimale = 50
-    duree_minimale = 1
+    duree_minimale = 1 # duree d'approche entre les 2 voitures successives
     acceletarion_maximale = 100
     deceleration_maximale = 100
+    facteur_zone = 1.25 # la largeur de la zone libre devant la voiture, par rapport à la taille de va voiture
 
     def __init__(self, couleur, x, y):
         self.position = vecteur(x, y) # position
@@ -67,7 +71,11 @@ class voiture:
         else:
             self.texture = texture_bleu
             self.angle = math.radians(90)
-        self.taille = self.texture.get_height() 
+        self.taille = self.texture.get_height()
+        voiture.voitures.append(self)
+    
+    def effacer():
+        voiture.voitures.clear()
 
     def afficher(self):
         ecran.blit(self.texture, (self.position.x - self.taille // 2, self.position.y - self.taille // 2))
@@ -79,12 +87,12 @@ class voiture:
             d_pos = autre.position - self.position
             if self.couleur == ROUGE:
                 d_pos.x %= 1600
-                if d_pos.x > self.taille and abs(d_pos.y) < self.taille * 1:
+                if d_pos.x > self.taille and abs(d_pos.y) < self.taille * self.facteur_zone:
                     min_dist = min(d_pos.x, min_dist)
                     dv = self.vitesse - autre.vitesse
             else:
                 d_pos.y %= 800
-                if d_pos.y > self.taille and abs(d_pos.x) < self.taille * 1:
+                if d_pos.y > self.taille and abs(d_pos.x) < self.taille * self.facteur_zone:
                     min_dist = min(d_pos.y, min_dist)
                     dv = self.vitesse - autre.vitesse
         return min_dist, dv
@@ -108,36 +116,125 @@ class voiture:
         self.position.x %= 1600 # si on dépasse l'écran, on reapparait de l'autre côté
         self.position.y %= 800
 
-for i in range(10):
-    voiture.voitures.append(voiture(ROUGE, 100 + 50 * i, 390 - 19))
-    voiture.voitures.append(voiture(ROUGE, 100 + 50 * i, 390))
-    voiture.voitures.append(voiture(ROUGE, 100 + 50 * i, 390 + 19))
-    voiture.voitures.append(voiture(ROUGE, 100 + 50 * i, 390 + 19 + 19))
-for i in range(10):
-    voiture.voitures.append(voiture(BLEU, 390 - 19, 100 + 50 * i))
-    voiture.voitures.append(voiture(BLEU, 390, 100 + 50 * i))
-    voiture.voitures.append(voiture(BLEU, 390 + 19, 100 + 50 * i))
-    voiture.voitures.append(voiture(BLEU, 390 + 19 + 19, 100 + 50 * i))
-    voiture.voitures.append(voiture(BLEU, 790 - 19, 100 + 50 * i))
-    voiture.voitures.append(voiture(BLEU, 790, 100 + 50 * i))
-    voiture.voitures.append(voiture(BLEU, 790 + 19, 100 + 50 * i))
-    voiture.voitures.append(voiture(BLEU, 790 + 19 + 19, 100 + 50 * i))
-    voiture.voitures.append(voiture(BLEU, 1190 - 19, 100 + 50 * i))
-    voiture.voitures.append(voiture(BLEU, 1190, 100 + 50 * i))
-    voiture.voitures.append(voiture(BLEU, 1190 + 19, 100 + 50 * i))
-    voiture.voitures.append(voiture(BLEU, 1190 + 19 + 19, 100 + 50 * i))
+def voitures_alealoires(nb):
+    for i in range(nb):
+        x = random.randint(0, 1600)
+        y = random.randint(0, 800)
+        couleur = random.choice((ROUGE, BLEU))
+        voiture(couleur, x, y)
 
-while active:
-    dt = horloge.tick(165)/1000  # limite FPS to 165
+voitures_alealoires(300)
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            active = False
+# while active:
+#     dt = horloge.tick(165)/1000  # limite FPS to 165
+
+#     for event in pygame.event.get():
+#         if event.type == pygame.QUIT:
+#             active = False
     
-    ecran.blit(texture_carrefour, (0, 0))
-    for v in voiture.voitures:
-        v.logique(dt)
-        v.afficher()
-    pygame.display.flip()
+#     ecran.blit(texture_vide, (0, 0))
+#     for v in voiture.voitures:
+#         v.logique(dt)
+#         v.afficher()
+#     pygame.display.flip()
 
 pygame.quit()
+
+def analyse_2(nb_valeurs, pas, nb_cycles_seconde, duree_totale, afficher = True):
+    x = []
+    y = []
+    for i in range(1, nb_valeurs + 1):
+        voiture.effacer()
+        x.append(pas * i)
+        voitures_alealoires(pas * i)
+        for j in range(duree_totale):
+            arretes = 0
+            for v in voiture.voitures:
+                v.logique(1 / nb_cycles_seconde)
+                if v.vitesse.norme_euclidienne() < 1:
+                    arretes += 1
+            if arretes > (pas * i) * 0.75: # on considere que la route est bloquée si 75% de voitures sont bloqués
+                break
+            if j % 25 == 0:
+                print("cycle:", i, "/", nb_valeurs, "duree:", j, "/", duree_totale)
+        y.append(arretes / (pas * i))
+    plt.plot(x, y)
+    if afficher:
+        plt.show()
+
+# analyse_2(150, 1, 20, 40 * 20)
+
+def analyse_3(nb_voitures, nb_cycles_seconde, duree_totale, afficher = True):
+    x = []
+    y = []
+    voiture.effacer()
+    voitures_alealoires(nb_voitures)
+    for i in range(duree_totale):
+        x.append(i / nb_cycles_seconde)
+        arretes = 0
+        for v in voiture.voitures:
+            v.logique(1 / nb_cycles_seconde)
+            if v.vitesse.norme_euclidienne() < 1:
+                arretes += 1
+        y.append(arretes / nb_voitures)
+        if i % 25 == 0:
+            print(i, "/", duree_totale)
+    plt.plot(x, y, label=nb_voitures)
+    plt.legend()
+    if afficher:
+        plt.show()
+
+# analyse_3(100, 30, 40 * 30, False)
+# analyse_3(200, 30, 40 * 30, False)
+# analyse_3(300, 30, 40 * 30)
+
+def analyse_4(nb_voitures, nb_cycles_seconde, duree_totale, afficher = True):
+    x = []
+    y = []
+    voiture.effacer()
+    voitures_alealoires(nb_voitures)
+    for i in range(duree_totale):
+        x.append(i / nb_cycles_seconde)
+        passages = 0
+        for v in voiture.voitures:
+            pos_avant = v.position
+            v.logique(1 / nb_cycles_seconde)
+            if v.couleur == ROUGE:
+                if pos_avant.x < 800 and v.position.x >= 800:
+                    passages += 1
+            else:
+                if pos_avant.y < 400 and v.position.y >= 400:
+                    passages += 1
+        y.append(passages / nb_voitures)
+        if i % 25 == 0:
+            print(i, "/", duree_totale)
+    plt.plot(x, y, label=nb_voitures)
+    plt.legend()
+    if afficher:
+        plt.show()
+    return y
+
+# analyse_4(100, 30, 40 * 30, False)
+# analyse_4(50, 30, 40 * 30, False)
+# analyse_4(100, 20, 40 * 20, False)
+# analyse_4(200, 20, 40 * 20, False)
+# analyse_4(300, 20, 40 * 20)
+
+def moyenne_quart(lst):
+    result = 0
+    for i in range(3 * len(lst) // 4, len(lst)):
+        result += lst[i] / (len(lst) // 4)
+    return result
+
+def analyse_5(nb_valeurs, pas, nb_cycles_seconde, duree_totale, afficher = True):
+    x = []
+    y = []
+    for i in range(1, nb_valeurs + 1):
+        x.append(pas * i)
+        y.append(moyenne_quart(analyse_4(pas * i, nb_cycles_seconde, duree_totale, False)))
+    plt.clf()
+    plt.plot(x, y)
+    if afficher:
+        plt.show()
+
+analyse_5(6, 50, 10, 40 * 10)
