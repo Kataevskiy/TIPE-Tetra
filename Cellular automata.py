@@ -41,7 +41,7 @@ def grille_vide(taille): #Renvoie une grille vide.
             grille[i][j] = WHITE
     return grille
 
-def grille_aléatoire(taille, nb_voitures): #Peut devenir très lente si le nombre de voitures est très grand.
+def grille_aleatoire(taille, nb_voitures): #Peut devenir très lente si le nombre de voitures est très grand.
     grille = grille_vide(taille)
     libre = np.zeros((taille, taille), dtype=bool)
     k = 0
@@ -97,7 +97,7 @@ def animation(grille, duree):
     plt.show()
 
 # grille1 = lire("Data/5 voitures.png")
-# grille = grille_aléatoire(100, 4000)
+# grille = grille_aleatoire(100, 4000)
 # animation(grille, 500)
 
 def analyse_1():
@@ -105,7 +105,7 @@ def analyse_1():
     x = np.arange(100, 2100, 25)
     for i in range(100, 2100, 25):
         y.append(1000)
-        grille = grille_aléatoire(50, i)
+        grille = grille_aleatoire(50, i)
         for j in range(1, 1000):
             nouvelle_grille = suivant(grille)
             if np.array_equal(nouvelle_grille, grille):

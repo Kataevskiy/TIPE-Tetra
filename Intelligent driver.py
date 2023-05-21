@@ -188,13 +188,23 @@ def analyse_3(nb_voitures, nb_cycles_seconde, duree_totale, afficher = True):
 # analyse_3(200, 30, 40 * 30, False)
 # analyse_3(300, 30, 40 * 30)
 
-def analyse_4(nb_voitures, nb_cycles_seconde, duree_totale, afficher = True):
+def moyenne_glissante(data, nb_points):
+    resultat = []
+    for i in range(len(data)):
+        debut = max(i - nb_points, 0)
+        longueur = i - debut + 1
+        resultat.append(sum(data[debut:i + 1]) / longueur)
+    return resultat
+
+def analyse_4(nb_voitures, nb_cycles_seconde, duree_totale, afficher = True, plot = True):
     x = []
     y = []
     voiture.effacer()
     voitures_alealoires(nb_voitures)
     for i in range(duree_totale):
-        x.append(i / nb_cycles_seconde)
+        if i % nb_cycles_seconde == 0:
+            x.append(i // nb_cycles_seconde)
+            y.append(0)
         passages = 0
         for v in voiture.voitures:
             pos_avant = v.position
@@ -205,36 +215,45 @@ def analyse_4(nb_voitures, nb_cycles_seconde, duree_totale, afficher = True):
             else:
                 if pos_avant.y < 400 and v.position.y >= 400:
                     passages += 1
-        y.append(passages / nb_voitures)
+        y[-1] += passages / nb_voitures
         if i % 25 == 0:
             print(i, "/", duree_totale)
-    plt.plot(x, y, label=nb_voitures)
-    plt.legend()
+    y = moyenne_glissante(y, 10) # moyenne glissante sur 10 secondes
+    if plot:
+        plt.plot(x, y, label=nb_voitures)
     if afficher:
+        plt.legend()
         plt.show()
     return y
 
-# analyse_4(100, 30, 40 * 30, False)
-# analyse_4(50, 30, 40 * 30, False)
-# analyse_4(100, 20, 40 * 20, False)
-# analyse_4(200, 20, 40 * 20, False)
-# analyse_4(300, 20, 40 * 20)
+plt.xlabel("temps (en s)")
+plt.ylabel("intensité de circulation (moyennée)")
+plt.title("intensité de circulation par seconde")
+analyse_4(25, 30, 60 * 30, False)
+analyse_4(50, 30, 60 * 30, False)
+analyse_4(75, 30, 60 * 30, False)
+analyse_4(100, 30, 60 * 30, False)
+analyse_4(125, 30, 60 * 30, False)
+analyse_4(150, 30, 60 * 30, False)
+analyse_4(300, 30, 60 * 30)
 
 def moyenne_quart(lst):
-    result = 0
+    resultat = 0
     for i in range(3 * len(lst) // 4, len(lst)):
-        result += lst[i] / (len(lst) // 4)
-    return result
+        resultat += lst[i] / (len(lst) // 4)
+    return resultat
 
 def analyse_5(nb_valeurs, pas, nb_cycles_seconde, duree_totale, afficher = True):
     x = []
     y = []
     for i in range(1, nb_valeurs + 1):
+        print("cycle", i, "/", nb_valeurs)
         x.append(pas * i)
-        y.append(moyenne_quart(analyse_4(pas * i, nb_cycles_seconde, duree_totale, False)))
-    plt.clf()
+        y.append(moyenne_quart(analyse_4(pas * i, nb_cycles_seconde, duree_totale, False, False)))
     plt.plot(x, y)
     if afficher:
         plt.show()
 
-analyse_5(6, 50, 10, 40 * 10)
+# analyse_5(15, 10, 20, 60 * 20, False)
+# analyse_5(15, 10, 20, 60 * 20, False)
+# analyse_5(5, 10, 20, 60 * 20)
