@@ -226,16 +226,17 @@ def analyse_4(nb_voitures, nb_cycles_seconde, duree_totale, afficher = True, plo
         plt.show()
     return y
 
-plt.xlabel("temps (en s)")
-plt.ylabel("intensité de circulation (moyennée)")
-plt.title("intensité de circulation par seconde")
-analyse_4(25, 30, 60 * 30, False)
-analyse_4(50, 30, 60 * 30, False)
-analyse_4(75, 30, 60 * 30, False)
-analyse_4(100, 30, 60 * 30, False)
-analyse_4(125, 30, 60 * 30, False)
-analyse_4(150, 30, 60 * 30, False)
-analyse_4(300, 30, 60 * 30)
+# plt.xlabel("temps (en s)")
+# plt.ylabel("intensité de circulation (moyennée)")
+# plt.title("intensité de circulation par seconde")
+# analyse_4(25, 120, 90 * 120, False)
+# analyse_4(50, 120, 90 * 120, False)
+# analyse_4(75, 120, 90 * 120, False)
+# analyse_4(100, 120, 90 * 120, False)
+# analyse_4(125, 120, 90 * 120, False)
+# analyse_4(150, 120, 90 * 120, False)
+# analyse_4(200, 120, 90 * 120, False)
+# analyse_4(300, 120, 90 * 120)
 
 def moyenne_quart(lst):
     resultat = 0
@@ -254,6 +255,7 @@ def analyse_5(nb_valeurs, pas, nb_cycles_seconde, duree_totale, afficher = True)
     if afficher:
         plt.show()
 
-# analyse_5(15, 10, 20, 60 * 20, False)
-# analyse_5(15, 10, 20, 60 * 20, False)
-# analyse_5(5, 10, 20, 60 * 20)
+plt.xlabel("nombre de voitures")
+plt.ylabel("intensité de circulation finale")
+plt.title("intensité finale en donction du nombre de voitures")
+analyse_5(30, 10, 120, 90 * 120)

@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as anim
 import random as rd
 
-RED = 2 #Les couleurs
-BLUE = 1
-WHITE = 0
+ROUGE = 2 #Les couleurs
+BLEU = 1
+BLANC = 0
 
 def lire(emplacement): #Charger la grille initiale.
     grille = plt.imread(emplacement)
@@ -14,11 +14,11 @@ def lire(emplacement): #Charger la grille initiale.
     for i in range(n):
         for j in range(n):
             if np.array_equal(grille[i][j], [1., 0., 0.]):
-                grille_texte[i][j] = RED
+                grille_texte[i][j] = ROUGE
             elif np.array_equal(grille[i][j], [0., 0., 1.]):
-                grille_texte[i][j] = BLUE
+                grille_texte[i][j] = BLEU
             else:
-                grille_texte[i][j] = WHITE
+                grille_texte[i][j] = BLANC
     return grille_texte
 
 def convertir(grille): #Convertir la grille en image.
@@ -26,9 +26,9 @@ def convertir(grille): #Convertir la grille en image.
     grille_nombres = np.zeros((n, n, 3), dtype=float)
     for i in range(n):
         for j in range(n):
-            if grille[i][j] == RED:
+            if grille[i][j] == ROUGE:
                 grille_nombres[i][j] = [1., 0., 0.]
-            elif grille[i][j] == BLUE:
+            elif grille[i][j] == BLEU:
                 grille_nombres[i][j] = [0., 0., 1.]
             else:
                 grille_nombres[i][j] = [1., 1., 1.]
@@ -38,21 +38,15 @@ def grille_vide(taille): #Renvoie une grille vide.
     grille = np.zeros( (taille, taille))
     for i in range(taille):
         for j in range(taille):
-            grille[i][j] = WHITE
+            grille[i][j] = BLANC
     return grille
 
 def grille_aleatoire(taille, nb_voitures): #Peut devenir très lente si le nombre de voitures est très grand.
     grille = grille_vide(taille)
-    libre = np.zeros((taille, taille), dtype=bool)
-    k = 0
-    while k < nb_voitures:
-        couleur = rd.randint(1, 2)
-        i = rd.randint(1, taille - 2)
-        j = rd.randint(1, taille - 2)
-        if not libre[i][j]:
-            libre[i][j] = True
-            grille[i][j] = couleur
-            k += 1
+    positions = rd.sample([(i, j) for j in range(1, taille - 1) for i in range(1, taille - 1)], nb_voitures)
+    couleurs = rd.sample([ROUGE, BLEU] * nb_voitures, nb_voitures)
+    for i in range(nb_voitures):
+        grille[positions[i][0]][positions[i][1]] = couleurs[i]
     return grille
 
 def suivant(grille_precedente): #Renvoie la grille à l'étape suivante.
@@ -61,29 +55,29 @@ def suivant(grille_precedente): #Renvoie la grille à l'étape suivante.
     
     for i in range(1, n - 1): #Les voitures avancent d'abord horizontalement.
         for j in range(1, n - 2):
-            if grille_precedente[i][j] == BLUE: #Si la voiture peut s'avancer, elle s'avance.
-                if grille_precedente[i][j + 1] == WHITE:
-                    grille[i][j + 1] = BLUE
+            if grille_precedente[i][j] == BLEU: #Si la voiture peut s'avancer, elle s'avance.
+                if grille_precedente[i][j + 1] == BLANC:
+                    grille[i][j + 1] = BLEU
                 else:
-                    grille[i][j] = BLUE
-        if grille_precedente[i][n - 2] == BLUE: #la dernière colonne doit être traitée séparemment.
-            if grille_precedente[i][1] == WHITE:
-                grille[i][1] = BLUE
+                    grille[i][j] = BLEU
+        if grille_precedente[i][n - 2] == BLEU: #la dernière colonne doit être traitée séparemment.
+            if grille_precedente[i][1] == BLANC:
+                grille[i][1] = BLEU
             else:
-                grille[i][n - 2] = BLUE
+                grille[i][n - 2] = BLEU
 
     for j in range(1, n - 1): #Les voitures avancent ensuite verticalement.
         for i in range(1, n - 2):
-            if grille_precedente[i][j] == RED:
-                if grille[i + 1][j] == WHITE and grille_precedente[i + 1][j] != RED: #Si une voiture bleu a avancé, cele peut libérer une place.
-                    grille[i + 1][j] = RED
+            if grille_precedente[i][j] == ROUGE:
+                if grille[i + 1][j] == BLANC and grille_precedente[i + 1][j] != ROUGE: #Si une voiture bleu a avancé, cele peut libérer une place.
+                    grille[i + 1][j] = ROUGE
                 else:
-                    grille[i][j] = RED
-        if grille_precedente[n - 2][j] == RED:
-            if grille[1][j] == WHITE and grille_precedente[1][j] != RED:
-                grille[1][j] = RED
+                    grille[i][j] = ROUGE
+        if grille_precedente[n - 2][j] == ROUGE:
+            if grille[1][j] == BLANC and grille_precedente[1][j] != ROUGE:
+                grille[1][j] = ROUGE
             else:
-                grille[n - 2][j] = RED
+                grille[n - 2][j] = ROUGE
     return grille
 
 def animation(grille, duree):
@@ -97,8 +91,8 @@ def animation(grille, duree):
     plt.show()
 
 # grille1 = lire("Data/5 voitures.png")
-# grille = grille_aleatoire(100, 4000)
-# animation(grille, 500)
+grille = grille_aleatoire(100, 4500)
+animation(grille, 500)
 
 def analyse_1():
     y = []
