@@ -91,22 +91,44 @@ def animation(grille, duree):
     plt.show()
 
 # grille1 = lire("Data/5 voitures.png")
-grille = grille_aleatoire(100, 4500)
-animation(grille, 500)
+# grille = grille_aleatoire(100, 5500)
+# animation(grille, 500)
 
-def analyse_1():
+def analyse_1(nb_min, nb_max, pas, duree, afficher = True):
     y = []
-    x = np.arange(100, 2100, 25)
-    for i in range(100, 2100, 25):
-        y.append(1000)
+    x = np.arange(nb_min, nb_max, pas)
+    for i in range(nb_min, nb_max, pas):
+        y.append(duree)
         grille = grille_aleatoire(50, i)
-        for j in range(1, 1000):
+        for j in range(1, duree):
             nouvelle_grille = suivant(grille)
             if np.array_equal(nouvelle_grille, grille):
                 y[-1] = j
                 break
             grille = nouvelle_grille
-    plt.plot(x, y)
+        print(i, "/", nb_max)
+    if afficher:
+        plt.plot(x, y)
+        plt.xlabel("Nombre de voitures")
+        plt.ylabel("Nombre d'étapes")
+        plt.title("Nombre moyen d'étapes avant le blocage de la route")
+        plt.show()
+    return x, y
+
+# analyse_1(10, 2200, 10, 1000)
+
+def analyse_2(nb_essais, nb_min, nb_max, pas, duree):
+    Y = [0] * ((nb_max - nb_min) // pas)
+    x = []
+    for i in range(nb_essais):
+        x, y = analyse_1(nb_min, nb_max, pas, duree, False)
+        for i in range(len(y)):
+            if y[i] < duree:
+                Y[i] += 1 / nb_essais
+    plt.plot(x, Y)
+    plt.xlabel("Nombre de voitures")
+    plt.ylabel("Probabilité de blocage")
+    plt.title("Probabilité de blocage de la route")
     plt.show()
 
-# analyse_1()
+analyse_2(20, 800, 1300, 20, 500)
